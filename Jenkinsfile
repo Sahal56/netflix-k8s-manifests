@@ -15,7 +15,7 @@ pipeline {
         stage('Cloning Manifest Repo') {
             steps {
                 dir('manifest') {
-                    git credentialsId: "${env.GIT_CREDENTIALS_ID}", url: "${env.MANIFEST_REPO}"
+                    git branch: 'main', credentialsId: "${env.GIT_CREDENTIALS_ID}", url: "${env.MANIFEST_REPO}"
                 }
             }
         }
