@@ -23,19 +23,23 @@ pipeline {
         stage('Update & Push Image Tag in Manifest Repo') {
             steps {
                 dir('manifest') {
-                    sh """
-                        # Updating image in Kubernetes YAML
+                    withCredentials([usernamePassword(credentialsId: 'github-id', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh """
+                        # Update image tag in YAML
                         sed -i 's|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${DOCKERTAG}|' Kubernetes/deployment.yaml
-
-                        # Git commit and push
+                        # Git commit
                         git config user.name "sahal pathan"
                         git config user.email "sahalpathan5601@gmail.com"
                         git add Kubernetes/deployment.yaml
-                        git commit -m "Done by Jenkins Job updatemanifestjob: ${env.BUILD_NUMBER}"
-                        git push origin main
-                    """
+                        git commit -m "Done by Jenkins Job UpdateManifest-CD-Pipeline: ${env.BUILD_NUMBER}" || echo "No changes to commit"
+
+                        # Push using injected credentials
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Sahal56/netflix-k8s-manifests.git main
+                        """
+                }
                 }
             }
         }
+        
     }
 }
